@@ -1,103 +1,112 @@
 // Sett pins for LEDs. Green=yes, Yellow=maybe, Red=no
-int redl = 5; 
-int greenl = 6;
-int yellowl = 7;
+int redl = 6; 
+int greenl = 7;
+int yellowl = 8;
 
 // Set button pin
-int btn = 2;
-
+int btn = 3;
+int buttonState = 0;
 // Setting delays
 int animdelay = 100; // Rolling animation delay. How fast should LEDs flicker.
-int rollduration = 50; // How long should animation last
-int candleduration = 100; // Candle flickering animation duration
+int rollduration = 0; // How long should animation last
+int rollsteps = 20;
+
+int candleduration = 500; // Candle flickering animation duration
+int flicker = 0;
+
+
+int beginloop = 0;
+int pingo;
+
 
 void setup()
 {
 pinMode(redl, OUTPUT); 
 pinMode(greenl, OUTPUT); 
 pinMode(yellowl, OUTPUT); 
-pinMode(btn, INPUT); 
+pinMode(12, INPUT); 
 randomSeed(analogRead(0));
+digitalWrite(yellowl, LOW);
+digitalWrite(greenl, LOW);
+digitalWrite(redl, LOW);
+
 }
 
 void loop(){
-if (digitalRead(btn)){
+buttonState = digitalRead(12);
+
+if (beginloop == 1) {
   Animation ();
-}
-}
-
-void flickerled (int led) {
-int flicker = 0;
-
-do {
-
-    if (led==1)
-    {
-    analogWrite(redl, random (255));
-    }
-    else if (led==2)
-    {
-    analogWrite(greenl, random (255));
-    }
-    else
-    {
-    analogWrite(yellowl, random (255));
-     }
-
-
-  flicker ++;
-
-    if (digitalRead(btn))
-    {
-      Animation ();
-      break;
-    }
-
-  int delayh = random(1,30);
-  delay (delayh);
-
-} while (flicker == candleduration);
-
-digitalWrite (redl, LOW);
-digitalWrite (redl, LOW);
-digitalWrite (redl, LOW);
-
+} 
+ 
+if (beginloop == 2) {
+  flickerled ();
+} 
+  
+if (buttonState == HIGH) {
+ beginloop = 1 ;
+ rollduration = 0;
+ flicker=0;
+ randomSeed(analogRead(12));
+} 
+ 
 }
 
 void Animation (){
-  
-int rollled=0;
-int pingo;
- 
-do
-{
-  pingo = random(1,3);
 
-    if (pingo==1)
-    {
-      digitalWrite (redl, HIGH);
-      delay (animdelay);
-    }
-    else if (pingo==2)
-    {
-      digitalWrite (greenl, HIGH);
-      delay (animdelay);
-    }
-    else
-    {
-      digitalWrite (yellowl, HIGH);
-      delay (animdelay);
-    }
+if (rollduration >= rollsteps){
+  beginloop = 2;
+  rollduration=0;
+  digitalWrite(yellowl, LOW);
+  digitalWrite(greenl, LOW);
+  digitalWrite(redl, LOW);
+}else{
+  pingo = random (1,3000);
+  digitalWrite (redl, HIGH);
+  digitalWrite (greenl, LOW);
+  digitalWrite (yellowl, LOW);
+  delay (animdelay);
   digitalWrite (redl, LOW);
+  digitalWrite (greenl, HIGH);
+  digitalWrite (yellowl, LOW);
+  delay (animdelay);
   digitalWrite (redl, LOW);
+  digitalWrite (greenl, LOW);
+  digitalWrite (yellowl, HIGH);
+  delay (animdelay);
   digitalWrite (redl, LOW);
+  digitalWrite (greenl, HIGH);
+  digitalWrite (yellowl, LOW);
+  delay (animdelay);
+  rollduration ++;
+}
 
+}
 
-//    digitalWrite (pingo, HIGH); 
-//    delay (100);
-//    digitalWrite (pingo, LOW);
-  rollled ++;
-} while (rollled == rollduration);
-//int delayh = random(5,7);
-flickerled (pingo);
+void flickerled () {
+
+if (flicker >= candleduration){
+  beginloop = 0;
+  digitalWrite(yellowl, LOW);
+  digitalWrite(greenl, LOW);
+  digitalWrite(redl, LOW);
+  pingo=0;
+}else{
+  if (pingo>1 and pingo<1000)
+  {
+    analogWrite(redl, random (100,255));
+  }
+  else if (pingo>1000 and pingo<2000)
+  {
+    analogWrite(greenl, random (100,255));
+  }
+  else
+  {
+    analogWrite(yellowl, random (100,255));
+  }
+int delayh = random(1,100);
+delay (delayh);
+flicker ++;
+}
+
 }
